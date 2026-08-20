@@ -112,9 +112,7 @@ where
                 .current_bytes
                 .saturating_sub(previous.weight_bytes.get());
         }
-        guard.current_bytes = guard
-            .current_bytes
-            .saturating_add(weight_bytes.get());
+        guard.current_bytes = guard.current_bytes.saturating_add(weight_bytes.get());
         guard.entries.put(
             key,
             Weighted {
@@ -133,9 +131,7 @@ where
     pub fn evict(&self, key: &K) {
         let mut guard = self.inner.lock().expect("cache lock poisoned");
         if let Some(entry) = guard.entries.pop(key) {
-            guard.current_bytes = guard
-                .current_bytes
-                .saturating_sub(entry.weight_bytes.get());
+            guard.current_bytes = guard.current_bytes.saturating_sub(entry.weight_bytes.get());
         }
     }
 
@@ -159,10 +155,7 @@ where
     /// Panics if another thread poisoned the cache lock.
     #[must_use]
     pub fn max_bytes(&self) -> u64 {
-        self.inner
-            .lock()
-            .expect("cache lock poisoned")
-            .max_bytes
+        self.inner.lock().expect("cache lock poisoned").max_bytes
     }
 
     /// Changes the byte ceiling and immediately evicts entries if necessary.
@@ -211,9 +204,7 @@ where
             let Some((_, entry)) = guard.entries.pop_lru() else {
                 break;
             };
-            guard.current_bytes = guard
-                .current_bytes
-                .saturating_sub(entry.weight_bytes.get());
+            guard.current_bytes = guard.current_bytes.saturating_sub(entry.weight_bytes.get());
             self.evictions.fetch_add(1, Ordering::Relaxed);
         }
     }
