@@ -296,3 +296,64 @@ mod tests {
         assert_eq!(cache.stats(), CacheStats::default());
     }
 }
+
+#[cfg(feature = "memory-budget")]
+impl<K, V> memory_budget::Resizable for ByteLruCache<K, V>
+where
+    K: Eq + std::hash::Hash + Send + Sync,
+    V: Send + Sync,
+{
+    fn name(&self) -> &str {
+        self.label()
+    }
+
+    fn current_bytes(&self) -> u64 {
+        self.current_bytes()
+    }
+
+    fn max_bytes(&self) -> u64 {
+        self.max_bytes()
+    }
+
+    fn set_max_bytes(&self, new: u64) {
+        self.set_max_bytes(new);
+    }
+
+    fn stats(&self) -> memory_budget::ResizableStats {
+        let stats = self.stats();
+        memory_budget::ResizableStats {
+            hits: stats.hits,
+            misses: stats.misses,
+            evictions: stats.evictions,
+        }
+    }
+}
+
+#[cfg(all(test, feature = "memory-budget"))]
+mod resizable_tests {
+    use std::num::NonZeroU64;
+    use std::sync::Arc;
+
+    use memory_budget::Resizable;
+
+    use super::ByteLruCache;
+
+    #[test]
+    fn the_cache_is_governable_through_the_resizable_seam() {
+        let cache = ByteLruCache::new(1024, "governed");
+        cache.insert(
+            "answer",
+            Arc::new(42_u32),
+            NonZeroU64::new(64).expect("positive weight"),
+        );
+        let governed: &dyn Resizable = &cache;
+        assert_eq!(governed.name(), "governed");
+        assert_eq!(governed.current_bytes(), 64);
+        assert_eq!(governed.max_bytes(), 1024);
+        governed.set_max_bytes(32);
+        assert_eq!(governed.current_bytes(), 0, "lowering the cap evicts");
+        let _ = cache.get(&"answer");
+        assert_eq!(governed.stats().misses, 1);
+        assert_eq!(governed.stats().evictions, 1);
+    }
+}

@@ -63,9 +63,16 @@ cache.set_max_bytes(512);
 assert!(cache.current_bytes() <= 512);
 ```
 
-The cache is independent of any process-wide memory governor. A governor can
-sample `current_bytes()` and call `set_max_bytes()` without adding a runtime,
-I/O, or policy dependency to this crate.
+The cache is independent of any process-wide memory governor by default. A
+governor can sample `current_bytes()` and call `set_max_bytes()` without
+adding a runtime, I/O, or policy dependency to this crate — and with the
+optional `memory-budget` feature, `ByteLruCache` implements
+[`memory_budget::Resizable`](https://docs.rs/memory-budget) directly, so
+registering the cache with the `memory-budget` coordinator needs no adapter:
+
+```toml
+byte-lru-cache = { version = "0.1", features = ["memory-budget"] }
+```
 
 ## Concurrency
 

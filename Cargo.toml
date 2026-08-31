@@ -1,6 +1,6 @@
 [package]
 name = "byte-lru-cache"
-version = "0.1.0"
+version = "0.1.1"
 description = "Thread-safe LRU caching governed by an explicit byte budget"
 authors = ["Jacobus Geluk <jacobus.geluk@dataroad.com>"]
 edition = "2024"
@@ -23,6 +23,12 @@ include = [
 
 [dependencies]
 lru = "0.18"
+memory-budget = { version = "0.1", optional = true }
+
+[features]
+# Implements `memory_budget::Resizable` for `ByteLruCache` so a process
+# memory governor can reapportion the cache's byte ceiling directly.
+memory-budget = ["dep:memory-budget"]
 
 [build-dependencies]
 rhusky = "0.0.6"
