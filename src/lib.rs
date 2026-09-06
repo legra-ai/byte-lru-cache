@@ -4,8 +4,14 @@
 
 use std::hash::Hash;
 use std::num::NonZeroU64;
-use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Arc, Mutex};
+use std::sync::atomic::{
+    AtomicU64,
+    Ordering,
+};
+use std::sync::{
+    Arc,
+    Mutex,
+};
 
 /// Monotonic counters collected by a [`ByteLruCache`].
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
@@ -215,7 +221,10 @@ mod tests {
     use std::num::NonZeroU64;
     use std::sync::Arc;
 
-    use super::{ByteLruCache, CacheStats};
+    use super::{
+        ByteLruCache,
+        CacheStats,
+    };
 
     fn weight(bytes: u64) -> NonZeroU64 {
         NonZeroU64::new(bytes).expect("test weights are positive")
