@@ -8,6 +8,16 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 class MaintenancePolicyTests(unittest.TestCase):
+    def test_dependency_merger_has_a_separate_identity_and_requires_success(self):
+        merge = (ROOT / '.github/workflows/dependabot-merge.yml').read_text()
+        self.assertIn("if: github.event.workflow_run.conclusion == 'success'", merge)
+        self.assertIn('secrets.RELEASE_MERGER_APP_ID', merge)
+        self.assertIn('secrets.RELEASE_MERGER_APP_KEY', merge)
+        self.assertNotIn('RELEASE_WRITER', merge)
+        action = merge.split('uses: legra-ai/github-actions/.github/actions/merge-tested-dependabot@', 1)[1]
+        self.assertIn('app-id: ${{ secrets.RELEASE_MERGER_APP_ID }}', action)
+        self.assertIn('token: ${{ steps.merger.outputs.token }}', action)
+
     def test_one_pinned_release_pipeline(self):
         workflow = (ROOT / '.github/workflows/ci.yml').read_text()
         self.assertRegex(workflow, r'cargo-maintenance.yml@[0-9a-f]{40}')
