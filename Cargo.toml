@@ -1,6 +1,6 @@
 [package]
 name = "byte-lru-cache"
-version = "0.1.4"
+version = "0.1.5"
 description = "Thread-safe LRU caching governed by an explicit byte budget"
 authors = ["Jacobus Geluk <jacobus.geluk@dataroad.com>"]
 edition = "2024"
